@@ -152,6 +152,8 @@ func (this *ModelParser) parseApiType(pkg *Package, apiType *apimodel.Type) {
 		if apiType.HasAttribute("Windows.Foundation.Metadata.DualApiPartitionAttribute") {
 			pkg.RtClasses = append(pkg.RtClasses, this.parseRtClass(apiType))
 		}
+	} else if apiType.Kind == apimodel.TypeUnknown {
+		//ignore
 	} else {
 		log.Panic("?")
 	}
@@ -387,7 +389,9 @@ func (this *ModelParser) parseType(apiType *apimodel.Type) *Type {
 		typ.Unsigned = baseType.Unsigned
 	} else if apiType.Kind == apimodel.TypeString {
 		typ.Kind = TypeKindString
-		typ.Size = TypeSize{} //?
+		typ.Size = TypeSize{
+			PtrSize, PtrSize,
+		} //?
 	} else if apiType.Kind == apimodel.TypeInterface {
 		typ.Kind = TypeKindInterface
 		typ.Name = "*" + typ.Name             //???

@@ -38,23 +38,40 @@ func main() {
 	})
 	apiModel := apiModelParser.Parse(mdModel)
 
-	apiFilter := &gomodel.ApiFilter{
-		Namespaces: []string{
-			"Windows.Foundation*",
-			"Windows.Networking",
-			"Windows.Devices.Bluetooth*",
-			"Windows.Devices.Enumeration",
-			"Windows.Web.Http*",
-			"Windows.Storage.Streams",
-			"!Windows.Foundation.Diagnostics",
-			"!Windows.Web.Http.Diagnostics",
-		},
-	}
+	//apiFilter := &gomodel.ApiFilter{
+	//Namespaces: []string{
+	//	"Windows.Foundation*",
+	//	"Windows.Networking",
+	//	"Windows.Devices.Bluetooth*",
+	//	"Windows.Devices.Enumeration",
+	//	"Windows.Web.Http*",
+	//	"Windows.Storage.Streams",
+	//	"!Windows.Foundation.Diagnostics",
+	//	"!Windows.Web.Http.Diagnostics",
+	//},
+	//}
 
-	modelParser := gomodel.NewModelParser(apiModel, apiFilter, map[string]*gomodel.Type{
+	// filter desktop APIs
+	apiFilter := &gomodel.ApiFilter{}
+	modelParser := gomodel.NewModelParser(apiModel, nil, nil)
+	goModel := modelParser.Parse()
+	for _, pkg := range goModel.Packages {
+		if len(pkg.RtClasses) > 0 {
+			apiFilter.Namespaces = append(apiFilter.Namespaces, pkg.FullName)
+		}
+	}
+	//add additional dependent nss
+	apiFilter.Namespaces = append(apiFilter.Namespaces, "Windows.UI.Popups")
+	apiFilter.Namespaces = append(apiFilter.Namespaces, "Windows.Foundation.Numerics")
+	//remove unwanted nss
+	apiFilter.Namespaces = append(apiFilter.Namespaces, "!Windows.Management.Deployment*")
+	apiFilter.Namespaces = append(apiFilter.Namespaces, "!Windows.Graphics.Holographic")
+
+	//
+	modelParser = gomodel.NewModelParser(apiModel, apiFilter, map[string]*gomodel.Type{
 		"System.Guid": gomodel.TypeGuid,
 	})
-	goModel := modelParser.Parse()
+	goModel = modelParser.Parse()
 
 	generator := codegen.NewGenerator(goModel, map[string]string{
 		"Windows.*": "winrt",

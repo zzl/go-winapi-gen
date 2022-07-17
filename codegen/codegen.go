@@ -855,6 +855,9 @@ func (this *Generator) genStruct(s *gomodel.Struct, aliasName string) string {
 	for _, f := range s.Fields {
 		name := utils.CapSafeName(f.Name)
 		typeName := this.baseTypeName(nil, f.Type)
+		if typeName == "string" {
+			typeName = "win32.HSTRING"
+		}
 		if strings.HasPrefix(name, "Anonymous") {
 			code += "\t" + typeName + "\n"
 		} else {

@@ -31,7 +31,7 @@ func CapName(name string) string {
 }
 
 func SafeName(name string) string {
-	reservedNames := []string{"type", "var", "range", "map"}
+	reservedNames := []string{"type", "var", "range", "map", "package"}
 	for _, it := range reservedNames {
 		if name == it {
 			return name + "_"
@@ -61,6 +61,7 @@ func CleanDir(dir string) {
 	}
 	for _, fi := range fis {
 		if fi.IsDir() {
+			CleanDir(filepath.Join(dir, fi.Name()))
 			continue
 		}
 		c0 := fi.Name()[0]
