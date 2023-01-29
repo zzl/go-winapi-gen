@@ -432,6 +432,9 @@ func (this *Generator) genSysCall(sc *gomodel.SysCall, aliasName string) string 
 	code += " {\n"
 
 	libName := strings.ReplaceAll(strings.ToLower(sc.LibName), "-", "_")
+	if strings.HasSuffix(libName, ".dll") {
+		libName = libName[:len(libName)-4]
+	}
 	libName = "lib" + strings.ToUpper(string(libName[0])) + libName[1:]
 
 	code += "\taddr := lazyAddr(&p" + funcName +

@@ -36,6 +36,10 @@ func (this *ApiFilter) IncludeDll(dll string) bool {
 	if this == nil || len(this.DllImports) == 0 {
 		return true
 	}
+	dotPos := strings.LastIndexByte(dll, '.')
+	if dotPos != -1 && strings.EqualFold(dll[dotPos:], ".dll") {
+		dll = dll[:dotPos]
+	}
 	for _, dllImport := range this.DllImports {
 		match := strings.EqualFold(dllImport, dll)
 		if match {

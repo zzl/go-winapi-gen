@@ -97,6 +97,7 @@ func main() {
 			"UI.WindowsAndMessaging",
 			//
 			"System.WinRT",
+			"Storage.Xps", //?
 		},
 		DllImports: []string{
 			"advapi32", "comctl32", "comdlg32", "gdi32",
