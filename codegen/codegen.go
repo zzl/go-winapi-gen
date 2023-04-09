@@ -177,16 +177,22 @@ func (this *Generator) GenPkg(pkg *gomodel.Package) string {
 				continue //?
 			}
 			sValue := fmt.Sprintf("%#v", v.Value)
-			var isGuid bool
+			var withEmptyLine bool
 			switch vValue := v.Value.(type) {
 			case syscall.GUID:
 				sGuid, _ := win32.GuidToStr(&vValue)
 				sValue = utils.BuildGuidExpr(sGuid)
-				isGuid = true
+				withEmptyLine = true
+			case win32.PROPERTYKEY:
+				sGuid, _ := win32.GuidToStr(&vValue.Fmtid)
+				sGuid = utils.BuildGuidExpr(sGuid)
+				sValue = "win32.PROPERTYKEY{Fmtid: " + sGuid +
+					", Pid: " + strconv.Itoa(int(vValue.Pid)) + "}"
+				withEmptyLine = true
 			}
 			name := utils.CapSafeName(v.Name)
 			code += "\t" + name + " = " + sValue + "\n"
-			if isGuid {
+			if withEmptyLine {
 				code += "\n"
 			}
 		}

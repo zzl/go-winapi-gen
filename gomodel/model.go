@@ -1,6 +1,7 @@
 package gomodel
 
 import (
+	"github.com/zzl/go-win32api/win32"
 	"github.com/zzl/go-winmd/apimodel"
 	"log"
 	"sort"
@@ -176,7 +177,7 @@ func (this *ModelParser) parseAlias(apiType *apimodel.Type) *TypeAlias {
 
 const PtrSize = int(unsafe.Sizeof(uintptr(0)))
 
-//to avoid recursive parseType call
+// to avoid recursive parseType call
 func (this *ModelParser) parseTypeName(apiType *apimodel.Type) string {
 	apiType = this.checkApiReplaceType(apiType)
 	if apiType.Kind == apimodel.TypeRef {
@@ -658,6 +659,13 @@ func (this *ModelParser) parseGuidAttrValue(args []interface{}) syscall.GUID {
 	return guid
 }
 
+func (this *ModelParser) parsePropertyKeyAttrValue(args []interface{}) win32.PROPERTYKEY {
+	var pkey win32.PROPERTYKEY
+	pkey.Fmtid = this.parseGuidAttrValue(args[:11])
+	pkey.Pid = args[11].(uint32)
+	return pkey
+}
+
 func (this *ModelParser) parseMethod(apiMethod *apimodel.Method) *Method {
 	m := &Method{}
 	m.Name = apiMethod.Name
@@ -729,6 +737,11 @@ func (this *ModelParser) parseVar(apiField *apimodel.Field) *Var {
 		if a.Type.Name == "GuidAttribute" {
 			if v.Value == nil && v.Type.Name == "syscall.GUID" {
 				v.Value = this.parseGuidAttrValue(a.Args)
+			}
+		} else if a.Type.Name == "PropertyKeyAttribute" {
+			const pkeyTypeName = "Windows.Win32.UI.Shell.PropertiesSystem.PROPERTYKEY"
+			if v.Value == nil && v.Type.Name == pkeyTypeName {
+				v.Value = this.parsePropertyKeyAttrValue(a.Args)
 			}
 		} else {
 			//println("?")

@@ -16,4 +16,6 @@
 vendor/
 output/
 
+_*/
+*.sum
 go.work
